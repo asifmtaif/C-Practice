@@ -1,0 +1,216 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_TRANSACTIONS 100
+
+struct Transaction {
+    int id;
+    char description[100];
+    double amount;
+    char category[50];
+    char date[20];
+};
+
+struct Transaction transactions[MAX_TRANSACTIONS];
+int transactionCount = 0;
+
+void menu();
+void add();
+void deleteTransaction();
+void update();
+void categorize();
+void show();
+void monthlyReport();
+
+int main() {
+    while (1) {
+        menu();
+    }
+    return 0;
+}
+
+void menu() {
+    int choice;
+    printf("\nExpense Manager\n");
+    printf("1. Add Transaction\n");
+    printf("2. Delete Transaction\n");
+    printf("3. Update Transaction\n");
+    printf("4. Categorize Expenses\n");
+    printf("5. Show All Transactions\n");
+    printf("6. Generate Monthly Report\n");
+    printf("7. Exit\n");
+    printf("Select an option: ");
+    scanf("%d", &choice);
+
+    switch (choice) {
+        case 1:
+            add();
+            break;
+        case 2:
+            deleteTransaction();
+            break;
+        case 3:
+            update();
+            break;
+        case 4:
+            categorize();
+            break;
+        case 5:
+            show();
+            break;
+        case 6:
+            monthlyReport();
+            break;
+        case 7:
+            exit(0);
+        default:
+            printf("Invalid option. Please try again.\n");
+    }
+}
+
+void add() {
+    char cont = 'y';
+    while (cont == 'y' && transactionCount < MAX_TRANSACTIONS) {
+        struct Transaction t;
+
+        printf("Enter Transaction ID: ");
+        scanf("%d", &t.id);
+
+        printf("Enter Description: ");
+        scanf(" %[^\n]%*c", t.description);
+
+        printf("Enter Amount: ");
+        scanf("%lf", &t.amount);
+
+        printf("Enter Category: ");
+        scanf(" %[^\n]%*c", t.category);
+
+        printf("Enter Date (YYYY-MM-DD): ");
+        scanf(" %[^\n]%*c", t.date);
+
+        transactions[transactionCount++] = t;
+
+        printf("Transaction added successfully.\n");
+        printf("Would you like to add another transaction? (y/n): ");
+        scanf(" %c", &cont);
+    }
+    if (transactionCount >= MAX_TRANSACTIONS) {
+        printf("Transaction limit reached!\n");
+    }
+}
+
+void deleteTransaction() {
+    int id, i, found = 0;
+    printf("Enter the Transaction ID to delete: ");
+    scanf("%d", &id);
+
+    for (i = 0; i < transactionCount; i++) {
+        if (transactions[i].id == id) {
+            found = 1;
+            break;
+        }
+    }
+
+    if (found) {
+        for (int j = i; j < transactionCount - 1; j++) {
+            transactions[j] = transactions[j + 1];
+        }
+        transactionCount--;
+        printf("Transaction deleted successfully.\n");
+    } else {
+        printf("Transaction with ID %d not found.\n", id);
+    }
+}
+
+void update() {
+    int id, i, found = 0;
+    printf("Enter the Transaction ID to update: ");
+    scanf("%d", &id);
+
+    for (i = 0; i < transactionCount; i++) {
+        if (transactions[i].id == id) {
+            found = 1;
+            break;
+        }
+    }
+
+    if (found) {
+        printf("Enter new Description: ");
+        scanf(" %[^\n]%*c", transactions[i].description);
+
+        printf("Enter new Amount: ");
+        scanf("%lf", &transactions[i].amount);
+
+        printf("Enter new Category: ");
+        scanf(" %[^\n]%*c", transactions[i].category);
+
+        printf("Enter new Date (YYYY-MM-DD): ");
+        scanf(" %[^\n]%*c", transactions[i].date);
+
+        printf("Transaction updated successfully.\n");
+    } else {
+        printf("Transaction with ID %d not found.\n", id);
+    }
+}
+
+void categorize() {
+    char category[50];
+    int found = 0;
+    printf("Enter the category to view transactions: ");
+    scanf(" %[^\n]%*c", category);
+
+    printf("\nTransactions under the category '%s':\n", category);
+    for (int i = 0; i < transactionCount; i++) {
+        if (strcmp(transactions[i].category, category) == 0) {
+            printf("ID: %d, Description: %s, Amount: %.2f, Date: %s\n",
+                   transactions[i].id, transactions[i].description,
+                   transactions[i].amount, transactions[i].date);
+            found = 1;
+        }
+    }
+
+    if (!found) {
+        printf("No transactions found under the category '%s'.\n", category);
+    }
+}
+
+void show() {
+    if (transactionCount == 0) {
+        printf("No transactions available.\n");
+    } else {
+        printf("\nAll Transactions:\n");
+        for (int i = 0; i < transactionCount; i++) {
+            printf("ID: %d ---> Description: %s ---> Amount: %.2f ---> Category: %s ---> Date: %s\n",
+                   transactions[i].id, transactions[i].description,
+                   transactions[i].amount, transactions[i].category,
+                   transactions[i].date);
+        }
+    }
+}
+
+void monthlyReport() {
+    char month[8];
+    double total = 0;
+    int found = 0;
+    printf("Enter the month (YYYY-MM) to generate the report: ");
+    scanf(" %[^\n]%*c", month);
+
+    printf("\nTransactions for %s:\n", month);
+    for (int i = 0; i < transactionCount; i++) {
+        if (strncmp(transactions[i].date, month, 7) == 0) {
+            printf("ID: %d, Description: %s ---> Amount: %.2f ---> Category: %s ---> Date: %s\n",
+                   transactions[i].id, transactions[i].description,
+                   transactions[i].amount, transactions[i].category,
+                   transactions[i].date);
+            total += transactions[i].amount;
+            found = 1;
+        }
+    }
+
+    if (found) {
+        printf("Total amount spent in %s: %.2f\n", month, total);
+    } else {
+        printf("No transactions found for the month %s.\n", month);
+    }
+}
