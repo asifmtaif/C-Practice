@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+struct BusStop {
+    char name[50];
+    struct BusStop* next;
+};
+
+
+struct BusStop* createBusStop(char* name) {
+    struct BusStop* newBusStop = (struct BusStop*)malloc(sizeof(struct BusStop));
+    strcpy(newBusStop->name, name);
+    newBusStop->next = NULL;
+    return newBusStop;
+}
+
+void addBusStop(struct BusStop** head, char* name, int position) {
+    struct BusStop* newBusStop = createBusStop(name);
+
+    if (position == 1) {
+        newBusStop->next = *head;
+        *head = newBusStop;
+    } else {
+        struct BusStop* temp = *head;
+        for (int i = 1; i < position - 1 && temp != NULL; i++) {
+            temp = temp->next;
+        }
+        if (temp != NULL) {
+            newBusStop->next = temp->next;
+            temp->next = newBusStop;
+        } else {
+            printf("Position out of bounds.\n");
+        }
+    }
+}
+
+void removeBusStop(struct BusStop** head, char* name) {
+    struct BusStop* temp = *head, *prev = NULL;
+
+    if (temp != NULL && strcmp(temp->name, name) == 0) {
+        *head = temp->next;
+        free(temp);
+        return;
+    }
+
+    while (temp != NULL && strcmp(temp->name, name) != 0) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        printf("Bus stop not found.\n");
+        return;
+    }
+
+    prev->next = temp->next;
+    free(temp);
+}
+
+void displayRoute(struct BusStop* head) {
+    printf("Current Route: ");
+    while (head != NULL) {
+        printf("%s -> ", head->name);
+        head = head->next;
+    }
+    printf("End\n");
+}
+
+int main() {
+    struct BusStop* route = NULL;
+
+    addBusStop(&route, "Airport", 1);
+    addBusStop(&route, "Banani", 1);
+    addBusStop(&route, "Mohakhali", 1);
+    addBusStop(&route, "Farmgate", 1);
+    addBusStop(&route, "Kalabagan", 1);
+    addBusStop(&route, "Newmarket", 1);
+
+    int choice, position;
+    char name[50];
+
+    while (1) {
+        printf("\n--- Bus Route Management System ---\n");
+        printf("USER MENU: \n");
+        printf("1. Display Route\n");
+        printf("2. Add Bus Stop\n");
+        printf("3. Remove Bus Stop\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                displayRoute(route);
+                break;
+
+            case 2:
+                printf("Enter the name of the new bus stop: ");
+                scanf("%s", name);
+                printf("Enter the position to add the bus stop: ");
+                scanf("%d", &position);
+                addBusStop(&route, name, position);
+                break;
+
+            case 3:
+                printf("Enter the name of the bus stop to remove: ");
+                scanf("%s", name);
+                removeBusStop(&route, name);
+                break;
+
+            case 4:
+                exit(0);
+
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    }
+
+    return 0;
+} 
